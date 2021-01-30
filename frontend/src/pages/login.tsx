@@ -2,45 +2,44 @@ import { useRouter } from 'next/router';
 import { Box, Button, FormControl } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
 
-import { useRegisterMutation } from '../generated/graphql';
+import { useLoginMutation } from '../generated/graphql';
 
 import InputField from '../components/InputField';
 import Wrapper from '../components/Wrapper';
 
 import { toErrorMap } from '../utils/toErrorMap';
-import { createUrqlClient } from '../utils/createUrqlClient';
 import { withUrqlClient } from 'next-urql';
+import { createUrqlClient } from '../utils/createUrqlClient';
 
-interface registerProps {}
+interface loginProps {}
 
-const Register: React.FC<registerProps> = ({}) => {
+const Login: React.FC<loginProps> = () => {
   const router = useRouter();
-  const [, register] = useRegisterMutation();
+  const [, login] = useLoginMutation();
 
   return (
     <Wrapper variant='small'>
       <Formik
-        initialValues={{ username: '', password: '', email: '' }}
+        initialValues={{ usernameOrEmail: '', password: '' }}
         onSubmit={async (values, { setErrors }) => {
-          const response = await register({
-            options: { username: values.username, password: values.password, email: values.email },
-          });
-          console.log('response on register', response);
-          if (response.data?.register.errors) {
-            setErrors(toErrorMap(response.data.register.errors));
-          } else if (response.data?.register.user) {
+          const response = await login(values);
+          if (response.data?.login.errors) {
+            setErrors(toErrorMap(response.data.login.errors));
+          } else if (response.data?.login.user) {
             // worked
-            console.log('WORKED????', response);
             router.push('/');
           }
         }}
       >
         {({ isSubmitting }) => (
           <Form>
-            <Box textAlign='center'>Register form</Box>
+            <Box textAlign='center'>Login form</Box>
             <FormControl>
-              <InputField name='username' placeholder='username' label='Username' />
-              <InputField name='email' placeholder='email' label='Email' />
+              <InputField
+                name='usernameOrEmail'
+                placeholder='username or email'
+                label='Username or Email'
+              />
               <Box mt={4}>
                 <InputField
                   name='password'
@@ -51,7 +50,7 @@ const Register: React.FC<registerProps> = ({}) => {
               </Box>
             </FormControl>
             <Button type='submit' mt={2} isLoading={isSubmitting} colorScheme='teal'>
-              Register
+              Login
             </Button>
           </Form>
         )}
@@ -60,4 +59,4 @@ const Register: React.FC<registerProps> = ({}) => {
   );
 };
 
-export default withUrqlClient(createUrqlClient)(Register);
+export default withUrqlClient(createUrqlClient)(Login);
