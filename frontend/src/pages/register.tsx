@@ -10,6 +10,7 @@ import Wrapper from '../components/Wrapper';
 import { toErrorMap } from '../utils/toErrorMap';
 import { createUrqlClient } from '../utils/createUrqlClient';
 import { withUrqlClient } from 'next-urql';
+import { isServer } from '../utils/isServer';
 
 interface registerProps {}
 
@@ -26,11 +27,10 @@ const Register: React.FC<registerProps> = ({}) => {
             options: { username: values.username, password: values.password, email: values.email },
           });
           console.log('response on register', response);
-          if (response.data?.register.errors) {
+          if (response.data?.register?.errors) {
             setErrors(toErrorMap(response.data.register.errors));
-          } else if (response.data?.register.user) {
+          } else if (!response.data?.register?.errors) {
             // worked
-            console.log('WORKED????', response);
             router.push('/');
           }
         }}
@@ -40,7 +40,9 @@ const Register: React.FC<registerProps> = ({}) => {
             <Box textAlign='center'>Register form</Box>
             <FormControl>
               <InputField name='username' placeholder='username' label='Username' />
-              <InputField name='email' placeholder='email' label='Email' />
+              <Box mt={4}>
+                <InputField name='email' placeholder='email' label='Email' />
+              </Box>
               <Box mt={4}>
                 <InputField
                   name='password'

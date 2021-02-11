@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router';
-import { Box, Button, FormControl } from '@chakra-ui/react';
+import NextLink from 'next/link';
+import { Box, Button, Link } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
 
 import { useLoginMutation } from '../generated/graphql';
@@ -33,22 +34,22 @@ const Login: React.FC<loginProps> = () => {
       >
         {({ isSubmitting }) => (
           <Form>
-            <Box textAlign='center'>Login form</Box>
-            <FormControl>
-              <InputField
-                name='usernameOrEmail'
-                placeholder='username or email'
-                label='Username or Email'
-              />
-              <Box mt={4}>
-                <InputField
-                  name='password'
-                  placeholder='password'
-                  label='Password'
-                  type='password'
-                />
-              </Box>
-            </FormControl>
+            <Box mb={3} textAlign='center'>
+              Login form
+            </Box>
+            <InputField
+              name='usernameOrEmail'
+              placeholder='username or email'
+              label='Username or Email'
+            />
+            <Box mt={4}>
+              <InputField name='password' placeholder='password' label='Password' type='password' />
+            </Box>
+            <Box mt={3} width='50%' ml='auto'>
+              <NextLink href='/forgot-password'>
+                <Link>Forgot password?</Link>
+              </NextLink>
+            </Box>
             <Button type='submit' mt={2} isLoading={isSubmitting} colorScheme='teal'>
               Login
             </Button>
