@@ -1,13 +1,14 @@
-import 'reflect-metadata';
+import 'reflect-metadata'; // And typegraphql And typeorm needs this one
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
-import { MikroORM } from '@mikro-orm/core';
-import microConfig from './mikro-orm.config';
-import { COOKIE_NAME, FRONTEND_URL, __prod__ } from './constants';
 import session from 'express-session';
-import { buildSchema } from 'type-graphql';
-import { MyContext } from './types';
 import cors from 'cors';
+import { createConnection } from 'typeorm';
+
+// dynamic imports
+import { COOKIE_NAME, FRONTEND_URL, __prod__ } from './constants';
+import { MyContext } from './types';
+import { buildSchema } from 'type-graphql';
 
 // import redis from 'redis';
 import Redis from 'ioredis';
@@ -16,15 +17,22 @@ import connectRedis from 'connect-redis';
 // Resolvers
 import { UserResolver } from './resolvers/user';
 import { PostResolver } from './resolvers/post';
-// import { User } from './entities/User';
+import { User } from './entities/User';
+import { Post } from './entities/Post';
 
 //Main func
 const server = async () => {
   const app = express();
 
-  // create db connection and update any db tables before any changes to it from outside
-  const orm = await MikroORM.init(microConfig);
-  await orm.getMigrator().up();
+  await createConnection({
+    type: 'postgres',
+    database: 'lireddit2',
+    username: 'postgres',
+    password: 'postgres',
+    logging: true,
+    synchronize: true, // allows forget about migration (manna from heaven)
+    entities: [User, Post],
+  });
 
   // create redis connection
   const RedisStore = connectRedis(session);
@@ -63,7 +71,7 @@ const server = async () => {
       resolvers: [UserResolver, PostResolver],
       validate: false,
     }),
-    context: ({ req, res }): MyContext => ({ em: orm.em, req, res, redis }),
+    context: ({ req, res }): MyContext => ({ req, res, redis }),
   });
 
   // add express to apollo
