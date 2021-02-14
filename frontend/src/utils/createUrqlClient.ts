@@ -46,6 +46,7 @@ export const cursorPagination = (): Resolver => {
     let hasMore = true;
 
     // Check if the data is in the cache
+    // O_O
     const results: string[] = [];
     fieldInfos.forEach((fi) => {
       const key = cache.resolve(entityKey, fi.fieldKey) as string;
@@ -56,11 +57,6 @@ export const cursorPagination = (): Resolver => {
       }
       console.log('posts: ', dataFromPosts);
       results.push(...dataFromPosts);
-    });
-
-    console.log('Return type: ', {
-      hasMore,
-      posts: results,
     });
 
     return {
